@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: stock_prediction_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: stock_prediction
+      MYSQL_USER: stock_user
+      MYSQL_PASSWORD: stock_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - stock_network
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: stock_prediction_backend
+    environment:
+      DB_HOST: mysql
+      DB_USER: stock_user
+      DB_PASSWORD: stock_password
+      DB_NAME: stock_prediction
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    networks:
+      - stock_network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: stock_prediction_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - stock_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  stock_network:
+    driver: bridge
