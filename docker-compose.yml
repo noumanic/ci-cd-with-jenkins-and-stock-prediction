@@ -5,10 +5,12 @@ services:
     image: mysql:8.0
     container_name: stock_prediction_db
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: stock_prediction
-      MYSQL_USER: stock_user
-      MYSQL_PASSWORD: stock_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "3306:3306"
     volumes:
@@ -27,10 +29,12 @@ services:
     build: ./backend
     container_name: stock_prediction_backend
     environment:
-      DB_HOST: mysql
-      DB_USER: stock_user
-      DB_PASSWORD: stock_password
-      DB_NAME: stock_prediction
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    env_file:
+      - .env
     ports:
       - "5000:5000"
     depends_on:
@@ -56,7 +60,7 @@ services:
       - stock_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'  // Replace with your DockerHub username
+        DOCKERHUB_USERNAME = "${DOCKERHUB_CREDENTIALS_USR}"
         DOCKERHUB_REPO = 'stock-prediction'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
@@ -135,7 +135,7 @@ pipeline {
         stage('Integration Tests') {
             steps {
                 echo 'Running integration tests...'
-                sh 'sleep 10'  // Wait for services to fully start
+                sh 'sleep 10'
                 
                 script {
                     try {
@@ -158,25 +158,42 @@ pipeline {
                 }
             }
         }
+        
+        stage('Cleanup and Logging') {
+            steps {
+                script {
+                    echo 'Cleaning up Docker images...'
+                    sh 'docker image prune -f || true'
+                    
+                    // Log based on build result
+                    if (currentBuild.result == 'SUCCESS' || currentBuild.result == null) {
+                        echo 'Pipeline succeeded! Application deployed successfully.'
+                        sh 'echo "Deployment successful at $(date)" >> deployment.log'
+                    } else if (currentBuild.result == 'FAILURE') {
+                        echo 'Pipeline failed! Capturing logs...'
+                        sh 'docker-compose logs > pipeline-failure.log || true'
+                    } else if (currentBuild.result == 'UNSTABLE') {
+                        echo 'Pipeline completed with warnings.'
+                    }
+                }
+            }
+        }
     }
     
     post {
         always {
-            echo 'Cleaning up Docker images...'
-            sh 'docker image prune -f || true'
-            
-            echo 'Pipeline completed!'
+            echo 'Pipeline execution completed!'
         }
         success {
-            echo 'Pipeline succeeded! Application deployed successfully.'
-            sh 'echo "Deployment successful at $(date)" >> deployment.log'
+            echo '✓ All stages completed successfully!'
+            echo '✓ Application is deployed and running'
         }
         failure {
-            echo 'Pipeline failed! Check logs for details.'
-            sh 'docker-compose logs > pipeline-failure.log'
+            echo '✗ Pipeline failed - check the logs above for details'
+            echo '✗ Failed at stage: Check console output'
         }
         unstable {
-            echo 'Pipeline completed with warnings.'
+            echo '⚠ Pipeline completed but some tests failed or returned warnings'
         }
     }
 }
