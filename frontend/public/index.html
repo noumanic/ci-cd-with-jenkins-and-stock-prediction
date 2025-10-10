@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="%PUBLIC_URL%/stock.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/stock.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#667eea" />
+    <meta name="description" content="Rule-Based Stock Prediction Platform powered by moving average algorithms" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Stockify - Rule-Based Stock Prediction Platform</title>
+    
+    <!-- Preload fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Meta tags for better SEO -->
+    <meta property="og:title" content="Stockify - Rule-Based Stock Prediction Platform" />
+    <meta property="og:description" content="Harness the power of rule-based algorithms to predict stock prices with precision using moving average calculations." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://stockai.example.com" />
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Stockify - Rule-Based Stock Prediction Platform" />
+    <meta name="twitter:description" content="Harness the power of rule-based algorithms to predict stock prices with precision." />
+    
+    <!-- Additional styling for loading state -->
+    <style>
+      #root {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+      }
+      
+      .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        color: white;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 20px;
+        text-align: center;
+      }
+      
+      .loading-subtitle {
+        color: #94a3b8;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        margin-top: 8px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-container">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Stockify</div>
+      <div class="loading-subtitle">Loading Rule-Based Prediction Engine...</div>
+    </div>
+    
+    <div id="root"></div>
+    
+    <script>
+      // Hide loading screen when React app loads
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(function() {
+              loadingScreen.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
