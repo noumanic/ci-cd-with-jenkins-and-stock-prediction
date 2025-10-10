@@ -115,7 +115,7 @@ pipeline {
                 }
                 stage('Docker Compose Test') {
                     steps {
-                        echo 'Creating .env file for Docker Compose test...'
+                        echo 'Creating .env file and testing Docker Compose configuration...'
                         sh '''
                             cat > .env <<EOF
                             MYSQL_ROOT_PASSWORD=test_password
@@ -124,9 +124,13 @@ pipeline {
                             MYSQL_PASSWORD=test_user_password
                             DB_HOST=mysql
                             EOF
+                            
+                            echo "Created .env file:"
+                            cat .env
+                            
+                            echo "Testing Docker Compose configuration..."
+                            docker compose config || docker-compose config
                         '''
-                        echo 'Testing Docker Compose configuration...'
-                        sh 'docker compose config || docker-compose config'
                     }
                 }
             }
@@ -185,7 +189,7 @@ pipeline {
         
         stage('Deploy Containers') {
             steps {
-                echo 'Creating .env file for deployment...'
+                echo 'Creating .env file and deploying containers...'
                 sh '''
                     cat > .env <<EOF
                     MYSQL_ROOT_PASSWORD=prod_password
@@ -194,18 +198,22 @@ pipeline {
                     MYSQL_PASSWORD=prod_user_password
                     DB_HOST=mysql
                     EOF
+                    
+                    echo "Created .env file for deployment:"
+                    cat .env
+                    
+                    echo "Stopping existing containers..."
+                    docker-compose down || true
+                    
+                    echo "Starting new containers..."
+                    docker-compose up -d
+                    
+                    echo "Waiting for services to be ready..."
+                    sleep 30
+                    
+                    echo "Checking service health..."
+                    docker-compose ps
                 '''
-                echo 'Stopping existing containers...'
-                sh 'docker-compose down || true'
-                
-                echo 'Starting new containers...'
-                sh 'docker-compose up -d'
-                
-                echo 'Waiting for services to be ready...'
-                sh 'sleep 30'
-                
-                echo 'Checking service health...'
-                sh 'docker-compose ps'
             }
         }
         
