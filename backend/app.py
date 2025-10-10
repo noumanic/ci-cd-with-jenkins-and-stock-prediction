@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import mysql.connector
+import pymysql
+pymysql.install_as_MySQLdb()
 import requests
 import json
 from datetime import datetime, timedelta
@@ -20,9 +21,9 @@ DB_CONFIG = {
 def get_db_connection():
     """Create database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
+        connection = pymysql.connect(**DB_CONFIG)
         return connection
-    except mysql.connector.Error as err:
+    except pymysql.Error as err:
         print(f"Database connection error: {err}")
         return None
 
@@ -108,7 +109,7 @@ def store_stock_data(symbol, prices):
         connection.close()
         return True
         
-    except mysql.connector.Error as err:
+    except pymysql.Error as err:
         print(f"Database error: {err}")
         if connection:
             connection.close()
@@ -185,7 +186,7 @@ def get_stock_history(symbol):
             'count': len(data)
         })
         
-    except mysql.connector.Error as err:
+    except pymysql.Error as err:
         if connection:
             connection.close()
         return jsonify({'error': str(err)}), 500

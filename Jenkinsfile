@@ -45,8 +45,13 @@ pipeline {
                     steps {
                         echo 'Installing backend dependencies...'
                         dir('backend') {
-                            sh 'python -m pip install --upgrade pip'
-                            sh 'pip install -r requirements.txt'
+                            sh '''
+                                python -m pip install --upgrade pip
+                                pip install --timeout 300 --retries 3 --no-cache-dir -r requirements.txt || {
+                                    echo "Retrying with PyMySQL fallback..."
+                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
+                                }
+                            '''
                         }
                     }
                 }
@@ -81,8 +86,13 @@ pipeline {
                     steps {
                         echo 'Running backend tests...'
                         dir('backend') {
-                            sh 'pip install -r requirements.txt'
-                            sh 'python -m pytest test_app.py -v || echo "Tests completed with some failures"'
+                            sh '''
+                                pip install --timeout 300 --retries 3 --no-cache-dir -r requirements.txt || {
+                                    echo "Retrying with PyMySQL fallback..."
+                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
+                                }
+                                python -m pytest test_app.py -v || echo "Tests completed with some failures"
+                            '''
                         }
                     }
                 }
@@ -191,7 +201,7 @@ pipeline {
                         echo 'Backend health check passed'
                         
                         // Test frontend health
-                        sh 'curl -f http://localhost:3000/health || exit 1'
+                        sh 'curl -f http://localhost:3000/ || exit 1'
                         echo 'Frontend health check passed'
                         
                         // Test stock prediction API
