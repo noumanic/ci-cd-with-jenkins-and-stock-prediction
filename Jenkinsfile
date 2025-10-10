@@ -234,25 +234,40 @@ pipeline {
         
         stage('Integration Tests') {
             steps {
-                echo 'Running integration tests...'
-                sh 'sleep 10'
+                echo 'Waiting for services to be ready...'
+                sh 'sleep 60'
+                
+                echo 'Checking container status...'
+                sh 'docker-compose ps'
                 
                 script {
                     try {
-                        // Test backend health
-                        sh 'curl -f http://localhost:5000/health || exit 1'
-                        echo 'Backend health check passed'
+                        echo 'Testing backend health with retries...'
+                        sh '''
+                            for i in {1..5}; do
+                                echo "Attempt $i: Testing backend health..."
+                                if curl -f http://localhost:5000/health; then
+                                    echo "Backend health check passed on attempt $i"
+                                    break
+                                else
+                                    echo "Backend not ready, waiting 10 seconds..."
+                                    sleep 10
+                                fi
+                            done
+                        '''
                         
-                        // Test frontend health
+                        echo 'Testing frontend health...'
                         sh 'curl -f http://localhost:3000/ || exit 1'
                         echo 'Frontend health check passed'
                         
-                        // Test stock prediction API
+                        echo 'Testing stock prediction API...'
                         sh 'curl -f "http://localhost:5000/api/predict/AAPL" || exit 1'
                         echo 'Stock prediction API test passed'
                         
                     } catch (Exception e) {
                         echo "Integration tests failed: ${e.getMessage()}"
+                        echo "Container logs for debugging:"
+                        sh 'docker-compose logs --tail=50'
                         currentBuild.result = 'UNSTABLE'
                     }
                 }
