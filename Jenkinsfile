@@ -18,6 +18,12 @@ pipeline {
         stage('Install Dependencies') {
             parallel {
                 stage('Backend Dependencies') {
+                    agent {
+                        docker {
+                            image 'python:3.9'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         echo 'Installing backend dependencies...'
                         dir('backend') {
@@ -27,6 +33,12 @@ pipeline {
                     }
                 }
                 stage('Frontend Dependencies') {
+                    agent {
+                        docker {
+                            image 'node:18'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         echo 'Installing frontend dependencies...'
                         dir('frontend') {
@@ -40,14 +52,27 @@ pipeline {
         stage('Run Tests') {
             parallel {
                 stage('Backend Tests') {
+                    agent {
+                        docker {
+                            image 'python:3.9'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         echo 'Running backend tests...'
                         dir('backend') {
+                            sh 'pip install -r requirements.txt'
                             sh 'python -m pytest test_app.py -v || echo "Tests completed with some failures"'
                         }
                     }
                 }
                 stage('Frontend Build Test') {
+                    agent {
+                        docker {
+                            image 'node:18'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         echo 'Testing frontend build...'
                         dir('frontend') {
@@ -73,7 +98,7 @@ pipeline {
                         echo 'Building backend Docker image...'
                         dir('backend') {
                             sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:${IMAGE_TAG} ."
-                            sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:latest ."
+                            sh "docker tag ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:${IMAGE_TAG} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:latest"
                         }
                     }
                 }
@@ -82,7 +107,7 @@ pipeline {
                         echo 'Building frontend Docker image...'
                         dir('frontend') {
                             sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:${IMAGE_TAG} ."
-                            sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:latest ."
+                            sh "docker tag ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:${IMAGE_TAG} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:latest"
                         }
                     }
                 }
@@ -91,7 +116,7 @@ pipeline {
                         echo 'Building database Docker image...'
                         dir('database') {
                             sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:${IMAGE_TAG} ."
-                            sh "docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:latest ."
+                            sh "docker tag ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:${IMAGE_TAG} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:latest"
                         }
                     }
                 }
@@ -103,7 +128,7 @@ pipeline {
                 script {
                     echo 'Logging into DockerHub...'
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
-                        sh "echo ${DH_PASS} | docker login -u ${DH_USER} --password-stdin"
+                        sh "echo \$DH_PASS | docker login -u \$DH_USER --password-stdin"
                     }
 
                     echo 'Pushing Docker images to DockerHub...'
