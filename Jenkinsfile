@@ -117,13 +117,11 @@ pipeline {
                     steps {
                         echo 'Creating .env file and testing Docker Compose configuration...'
                         sh '''
-                            cat > .env <<EOF
-                            MYSQL_ROOT_PASSWORD=test_password
-                            MYSQL_DATABASE=stock_prediction
-                            MYSQL_USER=stock_user
-                            MYSQL_PASSWORD=test_user_password
-                            DB_HOST=mysql
-                            EOF
+                            echo "MYSQL_ROOT_PASSWORD=test_password" > .env
+                            echo "MYSQL_DATABASE=stock_prediction" >> .env
+                            echo "MYSQL_USER=stock_user" >> .env
+                            echo "MYSQL_PASSWORD=test_user_password" >> .env
+                            echo "DB_HOST=mysql" >> .env
                             
                             echo "Created .env file:"
                             cat .env
@@ -191,13 +189,11 @@ pipeline {
             steps {
                 echo 'Creating .env file and deploying containers...'
                 sh '''
-                    cat > .env <<EOF
-                    MYSQL_ROOT_PASSWORD=prod_password
-                    MYSQL_DATABASE=stock_prediction
-                    MYSQL_USER=stock_user
-                    MYSQL_PASSWORD=prod_user_password
-                    DB_HOST=mysql
-                    EOF
+                    echo "MYSQL_ROOT_PASSWORD=prod_password" > .env
+                    echo "MYSQL_DATABASE=stock_prediction" >> .env
+                    echo "MYSQL_USER=stock_user" >> .env
+                    echo "MYSQL_PASSWORD=prod_user_password" >> .env
+                    echo "DB_HOST=mysql" >> .env
                     
                     echo "Created .env file for deployment:"
                     cat .env
