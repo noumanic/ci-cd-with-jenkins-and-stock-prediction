@@ -202,8 +202,9 @@ pipeline {
                     echo "Created .env file for deployment:"
                     cat .env
                     
-                    echo "Stopping existing containers..."
-                    docker-compose down || true
+                    echo "Stopping and removing existing containers..."
+                    docker-compose down --remove-orphans || true
+                    docker container prune -f || true
                     
                     echo "Starting new containers..."
                     docker-compose up -d
