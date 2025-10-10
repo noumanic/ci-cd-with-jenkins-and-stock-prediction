@@ -15,12 +15,29 @@ pipeline {
             }
         }
         
+        stage('Pull Docker Images') {
+            parallel {
+                stage('Pull Python Image') {
+                    steps {
+                        echo 'Pulling Python image...'
+                        sh 'docker pull python:3.10'
+                    }
+                }
+                stage('Pull Node Image') {
+                    steps {
+                        echo 'Pulling Node image...'
+                        sh 'docker pull node:18'
+                    }
+                }
+            }
+        }
+        
         stage('Install Dependencies') {
             parallel {
                 stage('Backend Dependencies') {
                     agent {
                         docker {
-                            image 'python:3.9'
+                            image 'python:3.10'
                             args '-u root:root'
                             reuseNode true
                         }
@@ -56,7 +73,7 @@ pipeline {
                 stage('Backend Tests') {
                     agent {
                         docker {
-                            image 'python:3.9'
+                            image 'python:3.10'
                             args '-u root:root'
                             reuseNode true
                         }
