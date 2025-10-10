@@ -116,7 +116,7 @@ pipeline {
                 stage('Docker Compose Test') {
                     steps {
                         echo 'Testing Docker Compose configuration...'
-                        sh 'docker-compose config'
+                        sh 'docker compose config || docker-compose config'
                     }
                 }
             }

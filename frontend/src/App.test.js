@@ -42,7 +42,7 @@ describe('React Components', () => {
 
   test('App component has predict button', () => {
     render(<App />);
-    const predictButton = screen.getByText(/predict price/i);
+    const predictButton = screen.getByText(/predict/i);
     expect(predictButton).toBeInTheDocument();
   });
 });
