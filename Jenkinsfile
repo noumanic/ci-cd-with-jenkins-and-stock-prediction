@@ -12,8 +12,6 @@ pipeline {
             steps {
                 echo 'Checking out code from main branch...'
                 checkout scm
-                sh 'git checkout main'
-                sh 'git pull origin main'
             }
         }
         
