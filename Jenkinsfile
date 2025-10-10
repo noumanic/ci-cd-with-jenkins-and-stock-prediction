@@ -204,8 +204,20 @@ pipeline {
                     
                     echo "Stopping and removing existing containers..."
                     docker-compose down --remove-orphans || true
-                    docker stop stock_prediction_db stock_prediction_backend stock_prediction_frontend || true
-                    docker rm stock_prediction_db stock_prediction_backend stock_prediction_frontend || true
+                    
+                    echo "Force removing specific containers..."
+                    docker stop stock_prediction_db || true
+                    docker rm stock_prediction_db || true
+                    docker stop stock_prediction_backend || true
+                    docker rm stock_prediction_backend || true
+                    docker stop stock_prediction_frontend || true
+                    docker rm stock_prediction_frontend || true
+                    
+                    echo "Force removing container by ID if still exists..."
+                    docker stop 29b4f1b4a6b563a1e767817398b851c38e2521abaceec5fc3cd5f43cc1c0b812 || true
+                    docker rm 29b4f1b4a6b563a1e767817398b851c38e2521abaceec5fc3cd5f43cc1c0b812 || true
+                    
+                    echo "Cleaning up any remaining containers..."
                     docker container prune -f || true
                     
                     echo "Starting new containers..."
