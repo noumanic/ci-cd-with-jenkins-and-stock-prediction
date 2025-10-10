@@ -2,8 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKERHUB_USERNAME = "${DOCKERHUB_CREDENTIALS_USR}"
+        DOCKERHUB_USERNAME = 'noumandoc'
         DOCKERHUB_REPO = 'stock-prediction'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
@@ -103,16 +102,20 @@ pipeline {
         
         stage('Push Docker Images') {
             steps {
-                echo 'Logging into DockerHub...'
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                
-                echo 'Pushing Docker images to DockerHub...'
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:${IMAGE_TAG}"
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:latest"
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:${IMAGE_TAG}"
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:latest"
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:${IMAGE_TAG}"
-                sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:latest"
+                script {
+                    echo 'Logging into DockerHub...'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+                        sh "echo ${DH_PASS} | docker login -u ${DH_USER} --password-stdin"
+                    }
+
+                    echo 'Pushing Docker images to DockerHub...'
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:${IMAGE_TAG}"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:latest"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:${IMAGE_TAG}"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:latest"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:${IMAGE_TAG}"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-database:latest"
+                }
             }
         }
         
