@@ -115,6 +115,16 @@ pipeline {
                 }
                 stage('Docker Compose Test') {
                     steps {
+                        echo 'Creating .env file for Docker Compose test...'
+                        sh '''
+                            cat > .env <<EOF
+                            MYSQL_ROOT_PASSWORD=test_password
+                            MYSQL_DATABASE=stock_prediction
+                            MYSQL_USER=stock_user
+                            MYSQL_PASSWORD=test_user_password
+                            DB_HOST=mysql
+                            EOF
+                        '''
                         echo 'Testing Docker Compose configuration...'
                         sh 'docker compose config || docker-compose config'
                     }
@@ -175,6 +185,16 @@ pipeline {
         
         stage('Deploy Containers') {
             steps {
+                echo 'Creating .env file for deployment...'
+                sh '''
+                    cat > .env <<EOF
+                    MYSQL_ROOT_PASSWORD=prod_password
+                    MYSQL_DATABASE=stock_prediction
+                    MYSQL_USER=stock_user
+                    MYSQL_PASSWORD=prod_user_password
+                    DB_HOST=mysql
+                    EOF
+                '''
                 echo 'Stopping existing containers...'
                 sh 'docker-compose down || true'
                 
