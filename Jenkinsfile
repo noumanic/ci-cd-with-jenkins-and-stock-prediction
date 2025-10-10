@@ -49,7 +49,7 @@ pipeline {
                                 python -m pip install --upgrade pip
                                 pip install --timeout 300 --retries 3 --no-cache-dir -r requirements.txt || {
                                     echo "Retrying with PyMySQL fallback..."
-                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
+                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 cryptography==41.0.7 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
                                 }
                             '''
                         }
@@ -89,7 +89,7 @@ pipeline {
                             sh '''
                                 pip install --timeout 300 --retries 3 --no-cache-dir -r requirements.txt || {
                                     echo "Retrying with PyMySQL fallback..."
-                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
+                                    pip install Flask==2.3.3 Flask-CORS==4.0.0 PyMySQL==1.1.0 cryptography==41.0.7 requests==2.31.0 python-dotenv==1.0.0 gunicorn==21.2.0 pytest==7.4.3 protobuf==4.25.3
                                 }
                                 python -m pytest test_app.py -v || echo "Tests completed with some failures"
                             '''
