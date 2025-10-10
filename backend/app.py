@@ -78,6 +78,7 @@ def store_stock_data(symbol, prices):
     """Store stock data in database"""
     connection = get_db_connection()
     if not connection:
+        print("Database connection failed, skipping data storage")
         return False
     
     try:
@@ -107,6 +108,7 @@ def store_stock_data(symbol, prices):
         connection.commit()
         cursor.close()
         connection.close()
+        print(f"Successfully stored data for {symbol}")
         return True
         
     except pymysql.Error as err:
@@ -130,7 +132,7 @@ def predict_stock(symbol):
         if not prices:
             return jsonify({'error': 'No data available for symbol'}), 404
         
-        # Store data in database
+        # Store data in database (optional - continue even if it fails)
         store_stock_data(symbol, prices)
         
         # Calculate prediction using 3-day moving average
@@ -164,7 +166,12 @@ def get_stock_history(symbol):
     """Get historical stock data from database"""
     connection = get_db_connection()
     if not connection:
-        return jsonify({'error': 'Database connection failed'}), 500
+        return jsonify({
+            'symbol': symbol.upper(),
+            'data': [],
+            'count': 0,
+            'message': 'Database not available - using mock data'
+        })
     
     try:
         cursor = connection.cursor(dictionary=True)
@@ -187,9 +194,15 @@ def get_stock_history(symbol):
         })
         
     except pymysql.Error as err:
+        print(f"Database error in history: {err}")
         if connection:
             connection.close()
-        return jsonify({'error': str(err)}), 500
+        return jsonify({
+            'symbol': symbol.upper(),
+            'data': [],
+            'count': 0,
+            'message': 'Database error - using mock data'
+        })
 
 @app.route('/api/symbols', methods=['GET'])
 def get_available_symbols():

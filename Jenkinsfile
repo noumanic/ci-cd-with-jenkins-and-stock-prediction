@@ -219,6 +219,10 @@ pipeline {
                     echo "Verifying containers are removed..."
                     docker ps -a | grep stock_prediction || echo "No stock_prediction containers found"
                     
+                    echo "Pulling latest images..."
+                    docker pull ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-backend:latest || true
+                    docker pull ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}-frontend:latest || true
+                    
                     echo "Starting new containers..."
                     docker-compose up -d
                     

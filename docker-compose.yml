@@ -26,7 +26,7 @@ services:
       retries: 3
 
   backend:
-    build: ./backend
+    image: noumandoc/stock-prediction-backend:latest
     container_name: stock_prediction_backend
     environment:
       DB_HOST: ${DB_HOST}
@@ -50,7 +50,7 @@ services:
       retries: 3
 
   frontend:
-    build: ./frontend
+    image: noumandoc/stock-prediction-frontend:latest
     container_name: stock_prediction_frontend
     ports:
       - "3000:80"
